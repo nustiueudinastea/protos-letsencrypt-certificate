@@ -1,8 +1,10 @@
 FROM golang:1.9
 LABEL protos="0.0.1" \
       protos.installer.metadata.description="This applications provides SSL certificates using the letsencrypt.com service. " \
-      protos.installer.metadata.capabilities="ResourceProvider,InternetAccess,InternetListen" \
-      protos.installer.metadata.provides="certificate"
+      protos.installer.metadata.capabilities="ResourceProvider,ResourceConsumer,InternetAccess,GetInformation" \
+      protos.installer.metadata.requires="dns" \
+      protos.installer.metadata.provides="certificate" \
+      protos.installer.metadata.name="letsencrypt-certificate"
 
 ADD . "/go/src/letsencrypt-certificate/"
 WORKDIR "/go/src/letsencrypt-certificate/"

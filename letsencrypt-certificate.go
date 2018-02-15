@@ -1,26 +1,136 @@
 package main
 
 import (
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"errors"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/nustiueudinastea/protos/resource"
+
 	"github.com/nustiueudinastea/protoslib-go"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	//lego "github.com/xenolf/lego"
+	acme "github.com/xenolf/lego/acme"
 )
 
 var log = logrus.New()
+
+type MyUser struct {
+	Email        string
+	Registration *acme.RegistrationResource
+	key          crypto.PrivateKey
+}
+
+func (u MyUser) GetEmail() string {
+	return u.Email
+}
+func (u MyUser) GetRegistration() *acme.RegistrationResource {
+	return u.Registration
+}
+func (u MyUser) GetPrivateKey() crypto.PrivateKey {
+	return u.key
+}
+
+type ProtosProvider struct {
+	Domain     string
+	PClient    protos.Protos
+	Challenges map[string]*resource.Resource
+	User       MyUser
+}
+
+// Present creates the dns challenge to prove domain ownership to Let's Encrypt
+func (pp *ProtosProvider) Present(domain, token, keyAuth string) error {
+	log.Debugf("Creating DNS challenge %s for domain %s %s", keyAuth, domain, token)
+	_, value, ttl := acme.DNS01Record(domain, keyAuth)
+	dnsresource := resource.DNSResource{
+		Host:  "_acme-challenge",
+		Value: value,
+		Type:  "txt",
+		TTL:   ttl,
+	}
+	rscreq := resource.Resource{
+		Type:  resource.DNS,
+		Value: &dnsresource,
+	}
+	rsc, err := pp.PClient.CreateResource(rscreq)
+	if err != nil {
+		return err
+	}
+	pp.Challenges[token] = rsc
+	log.Debugf("Requested DNS resource %v", dnsresource)
+	return nil
+}
+
+// CleanUp is triggered once the certificate has been created, to clean up the created dns records
+func (pp *ProtosProvider) CleanUp(domain, token, keyAuth string) error {
+	log.Debugf("Deleting DNS resource for challenge %s for domain %s %s", keyAuth, domain, token)
+	err := pp.PClient.DeleteResource(pp.Challenges[token].ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pp *ProtosProvider) requestCertificate(domains []string) (*acme.CertificateResource, error) {
+
+	const rsaKeySize = 2048
+	privateKey, err := rsa.GenerateKey(rand.Reader, rsaKeySize)
+	if err != nil {
+		return nil, err
+	}
+
+	myUser := MyUser{
+		Email: "alex@protos.io",
+		key:   privateKey,
+	}
+
+	client, err := acme.NewClient("https://acme-staging.api.letsencrypt.org/directory", &myUser, acme.RSA2048)
+	if err != nil {
+		return nil, err
+	}
+
+	reg, err := client.Register()
+	if err != nil {
+		return nil, err
+	}
+
+	myUser.Registration = reg
+	err = client.AgreeToTOS()
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.SetChallengeProvider(acme.DNS01, pp)
+	if err != nil {
+		return nil, err
+	}
+	client.ExcludeChallenges([]acme.Challenge{acme.HTTP01, acme.TLSSNI01})
+
+	bundle := false
+	certificate, failures := client.ObtainCertificate(domains, bundle, nil, false)
+	if len(failures) > 0 {
+		for _, fail := range failures {
+			log.Error(fail)
+		}
+		return nil, errors.New("Could not obtain certificate")
+	}
+
+	log.Debugf("Certificate for domain %s has been created", certificate.Domain)
+	return &certificate, nil
+}
 
 func waitQuit(pclient protos.Protos) {
 	sigchan := make(chan os.Signal, 10)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigchan
 	log.Info("Deregisterting as certificate provider")
-	err := pclient.DeregisterProvider("dns")
+	err := pclient.DeregisterProvider("certificate")
 	if err != nil {
 		log.Error("Could not deregister as certificate provider: ", err.Error())
 	}
@@ -40,7 +150,10 @@ func activityLoop(interval time.Duration, protosURL string) {
 	log.Info("Using ", protosURL, " to connect to Protos.")
 
 	// Clients to interact with Protos and Namecheap
+	certProvider := ProtosProvider{}
 	pclient := protos.NewClient(protosURL, appID)
+	certProvider.PClient = pclient
+	certProvider.Challenges = make(map[string]*resource.Resource)
 
 	go waitQuit(pclient)
 
@@ -56,8 +169,47 @@ func activityLoop(interval time.Duration, protosURL string) {
 		}
 	}
 
+	log.Debug("Getting domain")
+	domain, err := pclient.GetDomain()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Debugf("Using domain %s", domain)
+	certProvider.Domain = domain
+
 	for {
-		log.Debug("Doing bogus loop step")
+		resources, err := pclient.GetResources()
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		log.Debug(resources)
+		for _, rsc := range resources {
+			if rsc.Status == resource.Requested {
+				val := rsc.Value.(*resource.CertificateResource)
+				certificate, err := certProvider.requestCertificate(val.Domains)
+				if err != nil {
+					log.Debugf("Error while creating certificate for resource %s: %s", rsc.ID, err.Error())
+					continue
+				}
+
+				val.Certificate = certificate.Certificate
+				val.PrivateKey = certificate.PrivateKey
+				val.IssuerCertificate = certificate.IssuerCertificate
+				val.CSR = certificate.CSR
+				err = pclient.UpdateResourceValue(rsc.ID, val)
+				if err != nil {
+					log.Errorf("Failed to update value for resource %s: %s", rsc.ID, err.Error())
+					continue
+				}
+				err = pclient.SetResourceStatus(rsc.ID, "created")
+				if err != nil {
+					log.Errorf("Failed to set status for resource %s: %s", rsc.ID, err.Error())
+					continue
+				}
+
+			}
+		}
 		time.Sleep(interval * time.Second)
 	}
 

@@ -1,7 +1,14 @@
 package: letsencrypt-certificate
 import:
-- package: github.com/Sirupsen/logrus
-  version: ^1.0.3
 - package: github.com/nustiueudinastea/protoslib-go
+- package: github.com/sirupsen/logrus
+- package: github.com/urfave/cli
+  version: ~1.20.0
 - package: github.com/xenolf/lego
-  version: ^0.4.1
+  version: master
+  subpackages:
+  - acme
+  - providers/dns
+- package: github.com/nustiueudinastea/protos
+  subpackages:
+  - resource

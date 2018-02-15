@@ -1,21 +1,45 @@
-hash: 7b761285009a48f4a4a6750169210f35ff27560414bff9418594ae8f26c1fcf3
-updated: 2018-01-26T13:17:10.340334+02:00
+hash: 88279fd7b235f2d456b7cac8b2b084bf6ae3fcd6182d7ee523a9186f2c6f2e47
+updated: 2018-02-08T17:49:59.485896+02:00
 imports:
+- name: github.com/miekg/dns
+  version: 5364553f1ee9cddc7ac8b62dce148309c386695b
+- name: github.com/nustiueudinastea/protos
+  version: 41264c94ea7627f8fc0f8b1e1c6f1f8cd480e485
+  subpackages:
+  - resource
 - name: github.com/nustiueudinastea/protoslib-go
-  version: 9789226f9721e3468dd29e86ffea9955db469455
-- name: github.com/Sirupsen/logrus
+  version: 713833ca9c283e68ab39c354ef80ac175396f091
+- name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/urfave/cli
-  version: 75104e932ac2ddb944a6ea19d9f9f26316ff1145
+  version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: github.com/xenolf/lego
-  version: 67c86d860a797ce2483f50d9174d4ed24984bef2
+  version: 06a8e7c475c03ef8d4773284ac63357d2810601b
+  subpackages:
+  - acme
+  - providers/dns
 - name: golang.org/x/crypto
   version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
   subpackages:
+  - ed25519
+  - ed25519/internal/edwards25519
+  - ocsp
   - ssh/terminal
+- name: golang.org/x/net
+  version: 7394c112eae4dba7e96bfcfe738e6373d61772b4
+  subpackages:
+  - bpf
+  - internal/iana
+  - ipv4
+  - ipv6
 - name: golang.org/x/sys
   version: 95c6576299259db960f6c5b9b69ea52422860fce
   subpackages:
   - unix
   - windows
+- name: gopkg.in/square/go-jose.v1
+  version: aa2e30fdd1fe9dd3394119af66451ae790d50e0d
+  subpackages:
+  - cipher
+  - json
 testImports: []
