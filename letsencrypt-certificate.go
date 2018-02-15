@@ -183,9 +183,9 @@ func activityLoop(interval time.Duration, protosURL string) {
 			log.Error(err)
 			continue
 		}
-		log.Debug(resources)
 		for _, rsc := range resources {
 			if rsc.Status == resource.Requested {
+				log.Debugf("New certificate resquest with resource %s", rsc.ID)
 				val := rsc.Value.(*resource.CertificateResource)
 				certificate, err := certProvider.requestCertificate(val.Domains)
 				if err != nil {
