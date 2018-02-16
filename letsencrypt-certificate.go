@@ -13,8 +13,8 @@ import (
 
 	"github.com/nustiueudinastea/protos/resource"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/nustiueudinastea/protoslib-go"
-	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	acme "github.com/xenolf/lego/acme"
 )

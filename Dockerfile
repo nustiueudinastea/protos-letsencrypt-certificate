@@ -1,4 +1,4 @@
-FROM golang:1.9
+FROM golang:1.8.3
 LABEL protos="0.0.1" \
       protos.installer.metadata.description="This applications provides SSL certificates using the letsencrypt.com service. " \
       protos.installer.metadata.capabilities="ResourceProvider,ResourceConsumer,InternetAccess,GetInformation" \
