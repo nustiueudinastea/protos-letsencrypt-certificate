@@ -46,10 +46,11 @@ type ProtosProvider struct {
 
 // Present creates the dns challenge to prove domain ownership to Let's Encrypt
 func (pp *ProtosProvider) Present(domain, token, keyAuth string) error {
-	log.Debugf("Creating DNS challenge %s for domain %s %s", keyAuth, domain, token)
-	_, value, ttl := acme.DNS01Record(domain, keyAuth)
+	fqdn, value, ttl := acme.DNS01Record(domain, keyAuth)
+	host := strings.TrimSuffix(fqdn, "."+pp.Domain+".")
+	log.Debugf("Creating DNS challenge for domain %s with token %s", domain, value)
 	dnsresource := resource.DNSResource{
-		Host:  "_acme-challenge",
+		Host:  host,
 		Value: value,
 		Type:  "txt",
 		TTL:   ttl,
@@ -75,6 +76,11 @@ func (pp *ProtosProvider) CleanUp(domain, token, keyAuth string) error {
 		return err
 	}
 	return nil
+}
+
+// Timeout returns the timeout duration for waiting for DNS propagation and the interval to check it
+func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
+	return 60 * time.Minute, 20 * time.Second
 }
 
 func (pp *ProtosProvider) requestCertificate(domains []string) (*acme.CertificateResource, error) {
@@ -187,7 +193,15 @@ func activityLoop(interval time.Duration, protosURL string) {
 			if rsc.Status == resource.Requested {
 				log.Debugf("New certificate resquest with resource %s", rsc.ID)
 				val := rsc.Value.(*resource.CertificateResource)
-				certificate, err := certProvider.requestCertificate(val.Domains)
+				fqdns := []string{}
+				for _, subdomain := range val.Domains {
+					if subdomain == "@" || strings.ToLower(subdomain) == strings.ToLower(certProvider.Domain) {
+						fqdns = append(fqdns, certProvider.Domain)
+					} else {
+						fqdns = append(fqdns, subdomain+"."+certProvider.Domain)
+					}
+				}
+				certificate, err := certProvider.requestCertificate(fqdns)
 				if err != nil {
 					log.Debugf("Error while creating certificate for resource %s: %s", rsc.ID, err.Error())
 					continue
