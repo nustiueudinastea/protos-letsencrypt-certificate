@@ -13,8 +13,8 @@ import (
 
 	"github.com/nustiueudinastea/protos/resource"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/nustiueudinastea/protoslib-go"
+	protos "github.com/nustiueudinastea/protoslib-go"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 	acme "github.com/xenolf/lego/acme"
 )
@@ -183,7 +183,13 @@ func activityLoop(interval time.Duration, protosURL string) {
 	log.Debugf("Using domain %s", domain)
 	certProvider.Domain = domain
 
+	first := true
 	for {
+		if first == false {
+			time.Sleep(interval * time.Second)
+		}
+		first = false
+
 		resources, err := pclient.GetResources()
 		if err != nil {
 			log.Error(err)
@@ -224,7 +230,6 @@ func activityLoop(interval time.Duration, protosURL string) {
 
 			}
 		}
-		time.Sleep(interval * time.Second)
 	}
 
 }
