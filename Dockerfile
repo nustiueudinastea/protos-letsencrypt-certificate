@@ -8,8 +8,8 @@ LABEL protos="0.0.1" \
 
 ADD . "/go/src/letsencrypt-certificate/"
 WORKDIR "/go/src/letsencrypt-certificate/"
-RUN curl https://glide.sh/get | sh
-RUN glide update --strip-vendor
+RUN go get -u github.com/golang/dep/cmd/dep
+RUN dep ensure
 RUN go build letsencrypt-certificate.go
 RUN chmod +x /go/src/letsencrypt-certificate/start.sh
 
