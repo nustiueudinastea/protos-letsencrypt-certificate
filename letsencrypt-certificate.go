@@ -65,6 +65,20 @@ func (pp *ProtosProvider) Present(domain, token, keyAuth string) error {
 	}
 	pp.Challenges[token] = rsc
 	log.Debugf("Requested DNS resource %v", dnsresource)
+	created := false
+	for created == false {
+		rsc, err = pp.PClient.GetResource(rsc.ID)
+		if err != nil {
+			return err
+		}
+		if rsc.Status == resource.Created {
+			created = true
+			log.Debug("DNS resource has been created")
+			continue
+		}
+		log.Debugf("Waiting for dns record %s(%s) to be created", dnsresource.Host, dnsresource.Value)
+		time.Sleep(5 * time.Second)
+	}
 	return nil
 }
 
