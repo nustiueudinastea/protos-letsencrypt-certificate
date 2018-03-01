@@ -2,10 +2,30 @@
 
 
 [[projects]]
+  name = "github.com/asdine/storm"
+  packages = [
+    ".",
+    "codec",
+    "codec/gob",
+    "codec/json",
+    "index",
+    "internal",
+    "q"
+  ]
+  revision = "68fc73b635f890fe7ba2f3b15ce80c85b28a744f"
+  version = "v2.0.2"
+
+[[projects]]
   branch = "master"
   name = "github.com/cnf/structhash"
   packages = ["."]
   revision = "62a607eb02243845670f25a61cbc2d394c1ede10"
+
+[[projects]]
+  name = "github.com/coreos/bbolt"
+  packages = ["."]
+  revision = "583e8937c61f1af6513608ccc75c97b6abdf4ff9"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/miekg/dns"
@@ -15,18 +35,26 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
+
+[[projects]]
+  branch = "master"
   name = "github.com/nustiueudinastea/protos"
   packages = [
+    "config",
+    "database",
     "resource",
     "util"
   ]
-  revision = "a8a7005ac2b34b738e748148c3f75916b9c5187d"
+  revision = "cd732a0357b1d90f42a91d76ded9d5cbd3d7d08f"
 
 [[projects]]
   branch = "master"
   name = "github.com/nustiueudinastea/protoslib-go"
   packages = ["."]
-  revision = "f1306ef54bfaed1e77ff855ec0ac9b0cae169c9a"
+  revision = "550891bc2fdd743931fca96e7c915fd6d5262821"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -55,7 +83,7 @@
     "ocsp",
     "ssh/terminal"
   ]
-  revision = "49796115aa4b964c318aad4f3084fdb41e9aa067"
+  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
 
 [[projects]]
   branch = "master"
@@ -78,7 +106,7 @@
     "unix",
     "windows"
   ]
-  revision = "c1138c84af3a9927aee1a1b8b7ce06c9b7ea52bc"
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -110,6 +138,12 @@
   ]
   revision = "aa2e30fdd1fe9dd3394119af66451ae790d50e0d"
   version = "v1.1.0"
+
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
+  version = "v2.1.1"
 
 [solve-meta]
   analyzer-name = "dep"
