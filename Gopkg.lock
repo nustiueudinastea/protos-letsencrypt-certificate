@@ -12,8 +12,8 @@
     "internal",
     "q"
   ]
-  revision = "68fc73b635f890fe7ba2f3b15ce80c85b28a744f"
-  version = "v2.0.2"
+  revision = "a86fa5e09c9c50a06416b08fd9acd4839fb2d62e"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
@@ -35,12 +35,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/mitchellh/mapstructure"
-  packages = ["."]
-  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
-
-[[projects]]
-  branch = "master"
   name = "github.com/nustiueudinastea/protos"
   packages = [
     "config",
@@ -48,19 +42,19 @@
     "resource",
     "util"
   ]
-  revision = "cd732a0357b1d90f42a91d76ded9d5cbd3d7d08f"
+  revision = "b8b1530f4f2f6a5659a2c72c8ee853c044469308"
 
 [[projects]]
   branch = "master"
   name = "github.com/nustiueudinastea/protoslib-go"
   packages = ["."]
-  revision = "550891bc2fdd743931fca96e7c915fd6d5262821"
+  revision = "c8a8ad3ab3f9a9d8c5f2f5c22243b50f53dff86d"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -83,7 +77,7 @@
     "ocsp",
     "ssh/terminal"
   ]
-  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
+  revision = "88942b9c40a4c9d203b82b3731787b672d6e809b"
 
 [[projects]]
   branch = "master"
@@ -97,7 +91,7 @@
     "ipv6",
     "publicsuffix"
   ]
-  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
@@ -106,7 +100,7 @@
     "unix",
     "windows"
   ]
-  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
+  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -136,14 +130,14 @@
     "cipher",
     "json"
   ]
-  revision = "aa2e30fdd1fe9dd3394119af66451ae790d50e0d"
-  version = "v1.1.0"
+  revision = "6e50787b7338112747e64f32753fb4f9dbfb8f79"
+  version = "v1.1.1"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
