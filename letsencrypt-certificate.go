@@ -97,7 +97,7 @@ func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
 	return 60 * time.Minute, 20 * time.Second
 }
 
-func (pp *ProtosProvider) requestCertificate(domains []string) (*acme.CertificateResource, error) {
+func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*acme.CertificateResource, error) {
 
 	const rsaKeySize = 2048
 	privateKey, err := rsa.GenerateKey(rand.Reader, rsaKeySize)
@@ -110,7 +110,7 @@ func (pp *ProtosProvider) requestCertificate(domains []string) (*acme.Certificat
 		key:   privateKey,
 	}
 
-	client, err := acme.NewClient("https://acme-staging.api.letsencrypt.org/directory", &myUser, acme.RSA2048)
+	client, err := acme.NewClient(leURL, &myUser, acme.RSA2048)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func waitQuit(pclient protos.Protos) {
 	os.Exit(0)
 }
 
-func activityLoop(interval time.Duration, protosURL string) {
+func activityLoop(interval time.Duration, protosURL string, leURL string) {
 
 	appID, err := protos.GetAppID()
 	if err != nil {
@@ -221,7 +221,7 @@ func activityLoop(interval time.Duration, protosURL string) {
 						fqdns = append(fqdns, subdomain+"."+certProvider.Domain)
 					}
 				}
-				certificate, err := certProvider.requestCertificate(fqdns)
+				certificate, err := certProvider.requestCertificate(fqdns, leURL)
 				if err != nil {
 					log.Debugf("Error while creating certificate for resource %s: %s", rsc.ID, err.Error())
 					continue
@@ -259,6 +259,7 @@ func main() {
 	var protosURL string
 	var interval int
 	var loglevel string
+	var leURL string
 
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
@@ -279,6 +280,12 @@ func main() {
 			Usage:       "Specify url used to connect to Protos API",
 			Destination: &protosURL,
 		},
+		cli.StringFlag{
+			Name:        "leurl",
+			Value:       "https://acme-v01.api.letsencrypt.org/directory",
+			Usage:       "Specify url used to connect to the Lets Encrypt API",
+			Destination: &leURL,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {
@@ -295,7 +302,7 @@ func main() {
 			Name:  "start",
 			Usage: "start the Letsencrypt certificate service",
 			Action: func(c *cli.Context) {
-				activityLoop(time.Duration(interval), protosURL)
+				activityLoop(time.Duration(interval), protosURL, leURL)
 			},
 		},
 	}
