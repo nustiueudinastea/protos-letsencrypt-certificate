@@ -12,8 +12,8 @@
     "internal",
     "q"
   ]
-  revision = "a86fa5e09c9c50a06416b08fd9acd4839fb2d62e"
-  version = "v2.1.0"
+  revision = "bda68dab90fc908ee5dbccb36400edf4f54972d6"
+  version = "v2.1.1"
 
 [[projects]]
   branch = "master"
@@ -30,25 +30,27 @@
 [[projects]]
   name = "github.com/miekg/dns"
   packages = ["."]
-  revision = "5364553f1ee9cddc7ac8b62dce148309c386695b"
-  version = "v1.0.4"
+  revision = "e57bf427e68187a27e22adceac868350d7a7079b"
+  version = "v1.0.7"
 
 [[projects]]
   branch = "master"
   name = "github.com/nustiueudinastea/protos"
   packages = [
+    "auth",
+    "capability",
     "config",
     "database",
     "resource",
     "util"
   ]
-  revision = "b8b1530f4f2f6a5659a2c72c8ee853c044469308"
+  revision = "0d3689071d829f8b3542e5eebf1355e603c5beba"
 
 [[projects]]
   branch = "master"
   name = "github.com/nustiueudinastea/protoslib-go"
   packages = ["."]
-  revision = "c8a8ad3ab3f9a9d8c5f2f5c22243b50f53dff86d"
+  revision = "42138620de2febcbe94b0ad2f178798320d40806"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -72,12 +74,14 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
+    "bcrypt",
+    "blowfish",
     "ed25519",
     "ed25519/internal/edwards25519",
     "ocsp",
     "ssh/terminal"
   ]
-  revision = "88942b9c40a4c9d203b82b3731787b672d6e809b"
+  revision = "7f39a6fea4fe9364fb61e1def6a268a51b4f3a06"
 
 [[projects]]
   branch = "master"
@@ -91,7 +95,7 @@
     "ipv6",
     "publicsuffix"
   ]
-  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
+  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
 
 [[projects]]
   branch = "master"
@@ -100,7 +104,7 @@
     "unix",
     "windows"
   ]
-  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
+  revision = "ad87a3a340fa7f3bed189293fbfa7a9b7e021ae1"
 
 [[projects]]
   name = "golang.org/x/text"
