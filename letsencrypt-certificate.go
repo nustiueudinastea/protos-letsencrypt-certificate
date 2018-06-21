@@ -192,7 +192,7 @@ func activityLoop(interval time.Duration, protosURL string, leURL string) {
 	log.Debug("Getting domain")
 	domain, err := pclient.GetDomain()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 	log.Debugf("Using domain %s", domain)
 	certProvider.Domain = domain
@@ -276,7 +276,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:        "protosurl",
-			Value:       "http://protos:8080/",
+			Value:       "http://protos:8080",
 			Usage:       "Specify url used to connect to Protos API",
 			Destination: &protosURL,
 		},
