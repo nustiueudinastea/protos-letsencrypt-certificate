@@ -23,6 +23,7 @@ LABEL protos="0.0.1" \
       protos.installer.metadata.provides="certificate" \
       protos.installer.metadata.name="letsencrypt-certificate"
 
+RUN apk add ca-certificates
 COPY --from=builder /go/src/letsencrypt-certificate/letsencrypt-certificate /root/
 COPY --from=builder /go/src/letsencrypt-certificate/start.sh /root/
 RUN chmod +x /root/start.sh
