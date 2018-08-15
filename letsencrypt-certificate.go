@@ -41,7 +41,7 @@ type ProtosProvider struct {
 	Domain     string
 	PClient    protos.Protos
 	Challenges map[string]*resource.Resource
-	User       MyUser
+	User       *MyUser
 }
 
 // Present creates the dns challenge to prove domain ownership to Let's Encrypt
@@ -99,18 +99,7 @@ func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
 
 func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*acme.CertificateResource, error) {
 
-	const rsaKeySize = 2048
-	privateKey, err := rsa.GenerateKey(rand.Reader, rsaKeySize)
-	if err != nil {
-		return nil, err
-	}
-
-	myUser := MyUser{
-		Email: "alex@protos.io",
-		key:   privateKey,
-	}
-
-	client, err := acme.NewClient(leURL, &myUser, acme.RSA2048)
+	client, err := acme.NewClient(leURL, pp.User, acme.RSA2048)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +109,7 @@ func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*a
 		return nil, err
 	}
 
-	myUser.Registration = reg
+	pp.User.Registration = reg
 	err = client.AgreeToTOS()
 	if err != nil {
 		return nil, err
@@ -197,6 +186,25 @@ func activityLoop(interval time.Duration, protosURL string, leURL string) {
 	log.Debugf("Using domain %s", domain)
 	certProvider.Domain = domain
 
+	adminuser, err := pclient.GetAdminUser()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Debugf("Using admin username %s", adminuser)
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	user := MyUser{
+		Email: adminuser + "@" + domain,
+		key:   privateKey,
+	}
+	log.Debugf("Using admin email %s", user.Email)
+
+	certProvider.User = &user
+
 	first := true
 	for {
 		if first == false {
@@ -254,7 +262,7 @@ func main() {
 	app.Name = "letsencrypt-certificate"
 	app.Author = "Alex Giurgiu"
 	app.Email = "alex@giurgiu.io"
-	app.Version = "0.0.1"
+	app.Version = "0.0.6"
 
 	var protosURL string
 	var interval int
