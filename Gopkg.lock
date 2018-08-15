@@ -48,9 +48,9 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/nustiueudinastea/protoslib-go"
+  name = "github.com/protosio/protoslib-go"
   packages = ["."]
-  revision = "42138620de2febcbe94b0ad2f178798320d40806"
+  revision = "1c53d2857d589aed227d2f88415d346ce3f07d9c"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -146,6 +146,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "df2dfb3c6ef5b1a2e84c64fbc463a4e4ff2e8b91ae03a138ad99013058a53a52"
+  inputs-digest = "c8011200ed4ef5a99432d45f8b5e7894bed881cbcb9cc5c5942249e4d968cee7"
   solver-name = "gps-cdcl"
   solver-version = 1
