@@ -262,7 +262,7 @@ func main() {
 	app.Name = "letsencrypt-certificate"
 	app.Author = "Alex Giurgiu"
 	app.Email = "alex@giurgiu.io"
-	app.Version = "0.0.6"
+	app.Version = "0.0.7"
 
 	var protosURL string
 	var interval int
