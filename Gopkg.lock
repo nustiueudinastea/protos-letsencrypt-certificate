@@ -30,8 +30,8 @@
 [[projects]]
   name = "github.com/miekg/dns"
   packages = ["."]
-  revision = "e57bf427e68187a27e22adceac868350d7a7079b"
-  version = "v1.0.7"
+  revision = "5a2b9fab83ff0f8bfc99684bd5f43a37abe560f1"
+  version = "v1.0.8"
 
 [[projects]]
   branch = "master"
@@ -44,19 +44,19 @@
     "resource",
     "util"
   ]
-  revision = "0d3689071d829f8b3542e5eebf1355e603c5beba"
+  revision = "194e2ae8d69f109e0fd0bdf63f42311b9564e3ee"
 
 [[projects]]
   branch = "master"
   name = "github.com/protosio/protoslib-go"
   packages = ["."]
-  revision = "1c53d2857d589aed227d2f88415d346ce3f07d9c"
+  revision = "2ef5113a5edcfcc8067edc100166e0d1710ba880"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
-  version = "v1.0.5"
+  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
+  version = "v1.0.6"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -81,7 +81,7 @@
     "ocsp",
     "ssh/terminal"
   ]
-  revision = "7f39a6fea4fe9364fb61e1def6a268a51b4f3a06"
+  revision = "aabede6cba87e37f413b3e60ebfc214f8eeca1b0"
 
 [[projects]]
   branch = "master"
@@ -95,7 +95,7 @@
     "ipv6",
     "publicsuffix"
   ]
-  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
+  revision = "aaf60122140d3fcf75376d319f0554393160eb50"
 
 [[projects]]
   branch = "master"
@@ -104,7 +104,7 @@
     "unix",
     "windows"
   ]
-  revision = "ad87a3a340fa7f3bed189293fbfa7a9b7e021ae1"
+  revision = "1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -134,8 +134,8 @@
     "cipher",
     "json"
   ]
-  revision = "6e50787b7338112747e64f32753fb4f9dbfb8f79"
-  version = "v1.1.1"
+  revision = "56062818b5e15ee405eb8363f9498c7113e98337"
+  version = "v1.1.2"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
