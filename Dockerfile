@@ -1,4 +1,4 @@
-FROM golang:1.8.3 as builder
+FROM golang:1.10.3 as builder
 LABEL protos="0.0.1" \
       protos.installer.metadata.name="letsencrypt-certificate" \
       protos.installer.metadata.description="This applications provides SSL certificates using the letsencrypt.com service. " \
