@@ -4,33 +4,39 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"errors"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
 
-	"github.com/nustiueudinastea/protos/resource"
+	"github.com/pkg/errors"
 
+	"github.com/protosio/protos/resource"
+
+	"github.com/go-acme/lego/v3/certcrypto"
+	"github.com/go-acme/lego/v3/certificate"
+	"github.com/go-acme/lego/v3/challenge"
+	"github.com/go-acme/lego/v3/challenge/dns01"
+	acme "github.com/go-acme/lego/v3/lego"
+	"github.com/go-acme/lego/v3/registration"
 	protos "github.com/protosio/protoslib-go"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	acme "github.com/xenolf/lego/acme"
 )
 
 var log = logrus.New()
 
 type MyUser struct {
 	Email        string
-	Registration *acme.RegistrationResource
+	Registration *registration.Resource
 	key          crypto.PrivateKey
 }
 
 func (u MyUser) GetEmail() string {
 	return u.Email
 }
-func (u MyUser) GetRegistration() *acme.RegistrationResource {
+func (u MyUser) GetRegistration() *registration.Resource {
 	return u.Registration
 }
 func (u MyUser) GetPrivateKey() crypto.PrivateKey {
@@ -46,14 +52,15 @@ type ProtosProvider struct {
 
 // Present creates the dns challenge to prove domain ownership to Let's Encrypt
 func (pp *ProtosProvider) Present(domain, token, keyAuth string) error {
-	fqdn, value, ttl := acme.DNS01Record(domain, keyAuth)
+	fqdn, value := dns01.GetRecord(domain, keyAuth)
+	// fqdn, value, ttl := acme.DNS01Record(domain, keyAuth)
 	host := strings.TrimSuffix(fqdn, "."+pp.Domain+".")
 	log.Debugf("Creating DNS challenge for domain %s with token %s", domain, value)
 	dnsresource := resource.DNSResource{
 		Host:  host,
 		Value: value,
 		Type:  "txt",
-		TTL:   ttl,
+		TTL:   dns01.DefaultTTL,
 	}
 	rscreq := resource.Resource{
 		Type:  resource.DNS,
@@ -97,41 +104,50 @@ func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
 	return 60 * time.Minute, 20 * time.Second
 }
 
-func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*acme.CertificateResource, error) {
+func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*certificate.Resource, error) {
 
-	client, err := acme.NewClient(leURL, pp.User, acme.RSA2048)
+	config := &acme.Config{
+		CADirURL: leURL,
+		User:     pp.User,
+		Certificate: acme.CertificateConfig{
+			KeyType: certcrypto.RSA2048,
+			Timeout: 30 * time.Second,
+		},
+	}
+
+	client, err := acme.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	reg, err := client.Register()
+	// obtain registration
+	reg, err := client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 	if err != nil {
 		return nil, err
 	}
-
+	// add registration to user
 	pp.User.Registration = reg
-	err = client.AgreeToTOS()
+
+	err = client.Challenge.SetDNS01Provider(pp)
 	if err != nil {
 		return nil, err
 	}
+	client.Challenge.Remove(challenge.HTTP01)
+	client.Challenge.Remove(challenge.TLSALPN01)
 
-	err = client.SetChallengeProvider(acme.DNS01, pp)
-	if err != nil {
-		return nil, err
+	certReq := certificate.ObtainRequest{
+		Domains:    domains,
+		Bundle:     false,
+		PrivateKey: nil,
+		MustStaple: false,
 	}
-	client.ExcludeChallenges([]acme.Challenge{acme.HTTP01, acme.TLSSNI01})
-
-	bundle := false
-	certificate, failures := client.ObtainCertificate(domains, bundle, nil, false)
-	if len(failures) > 0 {
-		for _, fail := range failures {
-			log.Error(fail)
-		}
-		return nil, errors.New("Could not obtain certificate")
+	certificate, err := client.Certificate.Obtain(certReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not obtain certificate")
 	}
 
 	log.Debugf("Certificate for domain %s has been created", certificate.Domain)
-	return &certificate, nil
+	return certificate, nil
 }
 
 func waitQuit(pclient protos.Protos) {
@@ -290,7 +306,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:        "leurl",
-			Value:       "https://acme-v01.api.letsencrypt.org/directory",
+			Value:       "https://acme-staging.api.letsencrypt.org/directory",
 			Usage:       "Specify url used to connect to the Lets Encrypt API",
 			Destination: &leURL,
 		},

@@ -1,4 +1,4 @@
-FROM golang:1.10.3 as builder
+FROM golang:1.13.3 as builder
 LABEL protos="0.0.1" \
       protos.installer.metadata.name="letsencrypt-certificate" \
       protos.installer.metadata.description="This applications provides SSL certificates using the letsencrypt.com service. " \
@@ -9,8 +9,6 @@ LABEL protos="0.0.1" \
 
 ADD . "/go/src/letsencrypt-certificate/"
 WORKDIR "/go/src/letsencrypt-certificate/"
-RUN go get -u github.com/golang/dep/cmd/dep
-RUN dep ensure
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build letsencrypt-certificate.go
 RUN chmod +x /go/src/letsencrypt-certificate/start.sh
 
