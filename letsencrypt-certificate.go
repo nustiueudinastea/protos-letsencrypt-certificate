@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -15,7 +14,6 @@ import (
 
 	"github.com/protosio/protos/resource"
 
-	"github.com/go-acme/lego/v3/certcrypto"
 	"github.com/go-acme/lego/v3/certificate"
 	"github.com/go-acme/lego/v3/challenge"
 	"github.com/go-acme/lego/v3/challenge/dns01"
@@ -105,27 +103,22 @@ func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
 	return 60 * time.Minute, 20 * time.Second
 }
 
-func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*certificate.Resource, error) {
+func (pp *ProtosProvider) requestCertificate(domains []string, staging bool) (*certificate.Resource, error) {
 
-	config := &acme.Config{
-		CADirURL:   leURL,
-		User:       pp.User,
-		HTTPClient: &http.Client{},
-		Certificate: acme.CertificateConfig{
-			KeyType: certcrypto.RSA2048,
-			Timeout: 30 * time.Second,
-		},
+	config := acme.NewConfig(pp.User)
+	if staging {
+		config.CADirURL = acme.LEDirectoryStaging
 	}
 
 	client, err := acme.NewClient(config)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Failed to create new ACME client")
 	}
 
 	// obtain registration
 	reg, err := client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Failed to do ACME client registration")
 	}
 	// add registration to user
 	pp.User.Registration = reg
@@ -166,7 +159,7 @@ func waitQuit(pclient protos.Protos) {
 	os.Exit(0)
 }
 
-func activityLoop(interval time.Duration, protosURL string, leURL string) {
+func activityLoop(interval time.Duration, protosURL string, staging bool) {
 
 	appID, err := protos.GetAppID()
 	if err != nil {
@@ -247,7 +240,7 @@ func activityLoop(interval time.Duration, protosURL string, leURL string) {
 						fqdns = append(fqdns, subdomain+"."+certProvider.Domain)
 					}
 				}
-				certificate, err := certProvider.requestCertificate(fqdns, leURL)
+				certificate, err := certProvider.requestCertificate(fqdns, staging)
 				if err != nil {
 					log.Debugf("Error while creating certificate for resource %s: %s", rsc.ID, err.Error())
 					continue
@@ -285,7 +278,7 @@ func main() {
 	var protosURL string
 	var interval int
 	var loglevel string
-	var leURL string
+	var staging bool
 
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
@@ -306,11 +299,10 @@ func main() {
 			Usage:       "Specify url used to connect to Protos API",
 			Destination: &protosURL,
 		},
-		cli.StringFlag{
-			Name:        "leurl",
-			Value:       "https://acme-staging.api.letsencrypt.org/directory",
-			Usage:       "Specify url used to connect to the Lets Encrypt API",
-			Destination: &leURL,
+		cli.BoolFlag{
+			Name:        "staging",
+			Usage:       "Add this flag to use the staging API from LE",
+			Destination: &staging,
 		},
 	}
 
@@ -328,7 +320,7 @@ func main() {
 			Name:  "start",
 			Usage: "start the Letsencrypt certificate service",
 			Action: func(c *cli.Context) {
-				activityLoop(time.Duration(interval), protosURL, leURL)
+				activityLoop(time.Duration(interval), protosURL, staging)
 			},
 		},
 	}
