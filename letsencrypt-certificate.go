@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -107,8 +108,9 @@ func (pp *ProtosProvider) Timeout() (timeout, interval time.Duration) {
 func (pp *ProtosProvider) requestCertificate(domains []string, leURL string) (*certificate.Resource, error) {
 
 	config := &acme.Config{
-		CADirURL: leURL,
-		User:     pp.User,
+		CADirURL:   leURL,
+		User:       pp.User,
+		HTTPClient: &http.Client{},
 		Certificate: acme.CertificateConfig{
 			KeyType: certcrypto.RSA2048,
 			Timeout: 30 * time.Second,
@@ -300,7 +302,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:        "protosurl",
-			Value:       "http://protos:8080",
+			Value:       "protos:8080",
 			Usage:       "Specify url used to connect to Protos API",
 			Destination: &protosURL,
 		},
