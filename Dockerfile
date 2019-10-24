@@ -10,7 +10,6 @@ LABEL protos="0.0.1" \
 ADD . "/go/src/letsencrypt-certificate/"
 WORKDIR "/go/src/letsencrypt-certificate/"
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build letsencrypt-certificate.go
-RUN chmod +x /go/src/letsencrypt-certificate/start.sh
 
 FROM alpine:latest
 LABEL protos="0.0.1" \
@@ -22,8 +21,8 @@ LABEL protos="0.0.1" \
       protos.installer.metadata.name="letsencrypt-certificate"
 
 RUN apk add ca-certificates
-COPY --from=builder /go/src/letsencrypt-certificate/letsencrypt-certificate /root/
-COPY --from=builder /go/src/letsencrypt-certificate/start.sh /root/
-RUN chmod +x /root/start.sh
+COPY --from=builder /go/src/letsencrypt-certificate/letsencrypt-certificate /usr/bin/
+RUN chmod +x /usr/bin/letsencrypt-certificate
 
-ENTRYPOINT ["/root/start.sh"]
+ENTRYPOINT ["/usr/bin/letsencrypt-certificate"]
+CMD ["--loglevel", "debug", "--interval", "20", "--staging", "start"]
