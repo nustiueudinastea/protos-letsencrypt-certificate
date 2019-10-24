@@ -167,6 +167,7 @@ func activityLoop(interval time.Duration, protosURL string, staging bool) {
 	}
 
 	log.Info("Starting with a check interval of ", interval*time.Second)
+	log.Info("Talking to the LE staging API: ", staging)
 	log.Info("Using ", protosURL, " to connect to Protos.")
 
 	// Clients to interact with Protos and Namecheap
